@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""
+STRAZH — demo 3: a git pre-commit hook that refuses to commit a private key.
+
+Install:
+    cp hooks/pre-commit .git/hooks/pre-commit
+    chmod +x .git/hooks/pre-commit
+
+The hook reads the list of known wallets from a file called
+`.strazh_wallets` in the repository root, one per line:
+
+    0xYourAddress=Creator wallet
+
+Only addresses are stored there — never keys. If a staged file contains a
+64-hex string that derives to one of those addresses, the commit is stopped.
+"""
+
+import os
+import subprocess
+import sys
+
+# Make the STRAZH modules importable no matter where git invoked the hook from.
+REPO_ROOT = subprocess.run(
+    ["git", "rev-parse", "--show-toplevel"],
+    capture_output=True, text=True, check=True,
+).stdout.strip()
+sys.path.insert(0, REPO_ROOT)
+
+from engine import classify  # noqa: E402
+
+WALLETS_FILE = os.path.join(REPO_ROOT, ".strazh_wallets")
+
+
+def load_known_wallets() -> dict:
+    wallets = {}
+    if not os.path.exists(WALLETS_FILE):
+        return wallets
+    with open(WALLETS_FILE, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            addr, name = line.split("=", 1)
+            wallets[addr.strip().lower()] = name.strip()
+    return wallets
+
+
+def staged_files():
+    out = subprocess.run(
+        ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    return [p for p in out.splitlines() if p.strip()]
+
+
+def main():
+    known = load_known_wallets()
+    if not known:
+        # Nothing to compare against: stay silent rather than guess.
+        sys.exit(0)
+
+    for path in staged_files():
+        full = os.path.join(REPO_ROOT, path)
+        if not os.path.isfile(full):
+            continue
+        try:
+            with open(full, "r", encoding="utf-8", errors="ignore") as fh:
+                content = fh.read()
+        except OSError:
+            continue
+
+        for finding in classify(content, known):
+            if finding.action == "STOP":
+                print(f"\n⛔ STRAZH: commit stopped — {path}")
+                print(f"   {finding.detail}")
+                print("   Remove the secret from the file and try again.\n")
+                sys.exit(1)
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
