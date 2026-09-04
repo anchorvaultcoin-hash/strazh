@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>STRAZH</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 22px; width: 440px; box-sizing: border-box;
+    font: 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #14161c; color: #e9edf5;
+  }
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  select {
+    font: inherit; font-size: 12.5px; padding: 4px 8px; border-radius: 6px;
+    background: #1c1f28; color: #e9edf5; border: 1px solid #343a49;
+  }
+  .sub { color: #97a1b5; font-size: 13px; margin: 0 0 18px; }
+  .warn {
+    background: #1d1a12; border: 1px solid #4a3d1c; border-left: 4px solid #d1a03a;
+    border-radius: 8px; padding: 11px 13px; font-size: 13px; color: #e4d6b4; margin-bottom: 18px;
+  }
+  label.f { display: block; font-size: 12.5px; color: #97a1b5; margin: 12px 0 5px; }
+  input {
+    width: 100%; box-sizing: border-box; font: inherit; padding: 9px 11px;
+    background: #1c1f28; color: #e9edf5; border: 1px solid #343a49; border-radius: 7px;
+  }
+  input:focus { outline: none; border-color: #5b74d6; }
+  button.add {
+    font: inherit; padding: 9px 16px; border-radius: 7px; cursor: pointer;
+    border: 1px solid #4a5165; background: #232734; color: #e9edf5; margin-top: 14px;
+  }
+  button.add:hover { background: #2c3142; }
+  ul { list-style: none; padding: 0; margin: 18px 0 0; }
+  li {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 8px;
+    background: #1c1f28; border: 1px solid #2a2f3c; border-radius: 8px;
+  }
+  .name { font-weight: 600; flex: none; }
+  .addr { color: #97a1b5; font-size: 12px; word-break: break-all; flex: 1; }
+  .del { border: none; background: none; color: #97a1b5; cursor: pointer; font-size: 16px; padding: 0 4px; }
+  .del:hover { color: #ff8f8f; }
+  .empty { color: #97a1b5; font-size: 13px; margin-top: 18px; }
+  .err { color: #ff8f8f; font-size: 12.5px; margin-top: 8px; min-height: 16px; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1 id="t-title">Wallets to protect</h1>
+    <select id="lang" aria-label="Language"></select>
+  </div>
+  <p class="sub" id="t-sub"></p>
+  <div class="warn" id="t-warn"></div>
+
+  <label class="f" id="t-name-label" for="name"></label>
+  <input id="name" type="text" autocomplete="off">
+
+  <label class="f" id="t-addr-label" for="addr"></label>
+  <input id="addr" type="text" placeholder="0x0000000000000000000000000000000000000000" autocomplete="off" spellcheck="false">
+
+  <div class="err" id="err"></div>
+  <button class="add" id="add"></button>
+
+  <ul id="list"></ul>
+  <p class="empty" id="empty"></p>
+
+  <script src="i18n.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
